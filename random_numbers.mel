@@ -1,0 +1,14 @@
+
+//********************************************
+// seed() sets the same sequence of random numbers
+//********************************************
+//Every time this loop is executed the random numbers are different
+for($i=0; $i<10; $i++)
+	print(rand(10.) + "\n");
+
+// by setting the seed value to a fixed number all random variable
+// from now will be generated in the same manner
+seed(3.);
+for($i=0; $i<10; $i++)
+	print(rand(10.) + "\n");
+
