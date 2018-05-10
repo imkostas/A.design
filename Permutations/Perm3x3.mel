@@ -1,0 +1,15 @@
+int $p[9];
+for( $k=0; $k<512; $k++){
+   for ( $i=0; $i<9; $i++) {
+      $p[$i] = int((($k)/pow(2, $i))%2);
+      $name = ("MyCube" + $k + "x" + $i);
+   	  polyCube -n $name;
+      if ($p[$i]==0)
+         eval("setAttr "+$name+".visibility 0");  //hide
+      if ($p[$i]==1)
+         eval("setAttr "+$name+".visibility 1");  //show
+      $x = (($k*3)/48)*3+$i%3;
+      $y = ($k*3)%48+$i/3;
+      move $x $y 0;
+    }
+  }
