@@ -1,0 +1,54 @@
+$knt=0;
+$xmax = 10;
+$ymax = 10;
+$zlayer = {5,4,4,3};
+$zmax = 4;
+$off = 100.;
+$neig = 1;
+
+for ($z=0; $z<size($zlayer); $z++)
+  for ($y=0; $y<$zlayer[$z]; $y++)
+	for ($x=0; $x<$zlayer[$z]; $x++) {
+		$name = "MyNeuron" + $x+"x"+$y+"x"+$z;
+    polyCube -name $name;
+    addAttr -shortName w -longName weight -defaultValue (rand(1.));
+    addAttr -shortName b -longName bias -defaultValue (rand(1.));
+    addAttr -longName inputs -dt "stringArray";
+    float $c = rand(1.);
+    //setColor($name, "lambert", $c,$c,$c,0.);
+    move ($x*1.) ($y*1.) ($z*5);
+}
+
+curve -d 1 -n "dash" -p 0 0 0 -p 0 .03 0;
+for ($z=0; $z<size($zlayer)-1; $z++)
+  for ($y1=0; $y1<$zlayer[$z]; $y1++)
+	for ($x1=0; $x1<$zlayer[$z]; $x1++)
+      for ($y2=0; $y2<$zlayer[$z+1]; $y2++)
+	    for ($x2=0; $x2<$zlayer[$z+1]; $x2++) {
+	    	$pos1 = eval("getAttr MyNeuron"+($x1)+"x"+($y1)+"x"+($z)+".translate");
+	    	$pos2 = eval("getAttr MyNeuron"+($x2)+"x"+($y2)+"x"+($z+1)+".translate");
+	    	$linename = "MyLink" +($x1)+"x"+($y1)+"x"+($z)+"x"+($x2)+"x"+($y2)+"x"+($z+1);
+	    	curve -d 1 -n $linename -p $pos1[0] $pos1[1] $pos1[2] -p $pos2[0] $pos2[1] $pos2[2];
+	    	/*****
+	    	curve -d 1 -n "curv" -p $pos1[0] $pos1[1] $pos1[2] -p $pos2[0] $pos2[1] $pos2[2];
+		    extrude  -rn false -po 0 -et 2 -ucp 1 -fpt 1 -upn 1 -rotation 0 -scale 1 -rsp 1 -name $linename dash curv ;
+            delete curv;
+            ******/
+	    }
+
+delete dash;
+
+//********************************************
+// set the color of an object.  Values vary between 0 (none) to 1 (full)
+//********************************************
+global proc setColor(string $object, string $type, float $red, float $green, float $blue, float $transparency){
+
+	$color = eval("createRenderNodeCB -asShader \"surfaceShader\" " + $type +"\"\"");
+	//set the color
+	eval("setAttr " + $color + ".color -type double3 "+ $red + " " + $green + " " + $blue);
+	//set the transparency
+	eval("setAttr " + $color + ".transparency -type double3 "+ $transparency + " " + $transparency + " " + $transparency);
+	//assign the color
+	eval("sets -e -forceElement " + $color + "SG "+ $object);
+
+}
