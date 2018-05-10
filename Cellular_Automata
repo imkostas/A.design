@@ -1,0 +1,74 @@
+//****************************************
+//
+// Title      : AutoCell.mel
+// Date       : 18.04.18
+// Author     : Kostas Terzidis
+// Description: This code creates a simple cellular automaton structure.
+//   		        In its current shape it creates a grid of polygonal planes
+//              and affects the overall configuration through individual rules.
+//              The grid could be different shapes, or a large shape subdivided into a grid
+//              (i.e. nurbsPlane -sx 40 -sy 40) so the rules would apply to the uv points.
+//              Further, the rules can ne altered to fit the specification of your project.
+//              An important part of cellular automata is not guessing a rule, but rather
+//              experimenting over and over until something emerges.
+//
+//****************************************
+int $xmax = 200;
+int $ymax = 200;
+seed(3.);
+matrix $ca[200][200];
+matrix $memory[200][200];
+
+int $h = 0;
+//create the grid of cubes randomly visible
+for($x=0; $x<$xmax; $x++)    // loop in x-direction
+	for($y=0; $y<$ymax; $y++){    // loop in y-direction
+	     $name = ("MyCube" + $x + "x" + $y);
+	     polyCube  -name $name;
+	     move ($x-$xmax/2) ($y-$ymax/2) 0;
+	     scale 1 1 $dataSet[($h)];
+	     $h++;
+	     //disturb it
+	     if(rand(2.) > 1.) {  //50% chance
+	    	eval("setAttr "+$name+".visibility 0");  //show or hide
+	    	$ca[$x][$y] = 0;
+	    	$memory[$x][$y] = 0;
+	        }
+	    else{
+	        $ca[$x][$y] = 1;
+	        $memory[$x][$y] = 1;
+	        }
+	     }
+
+for($gen=0; $gen<20; $gen++)  { //the number of trials (generations)
+
+    // FIND NEIGHBORS
+	for($x=1; $x<$xmax-1; $x++)    // loop in x-direction
+		for($y=1; $y<$ymax-1; $y++){    // loop in y-direction
+		    $name = ("MyCube" + $x + "x" + $y);
+		    $nn = 0.;
+		    for($i=-1; $i<=1; $i++)  // loop by three positions
+		    	for($j=-1; $j<=1; $j++){ // loop by three positions
+		    	    if($i==0 && $j==0)continue; // exclude the cell itself
+		    	    if($ca[($x+$i)][($y+$j)]==1)
+		    	       $nn++;
+		    	    }
+		     if($ca[$x][$y]==0 && $nn==3)
+	            $memory[$x][$y]=1;
+	         if($ca[$x][$y]==1 && $nn==5)
+	            $memory[$x][$y]=0;
+		    }
+
+	// DRAW CELLS
+	for($x=1; $x<$xmax-1; $x++)    // loop in x-direction
+		for($y=1; $y<$ymax-1; $y++){    // loop in y-direction
+		     $name = ("MyCube" + $x + "x" + $y);
+		     $ca[$x][$y] = $memory[$x][$y];
+		     if($memory[$x][$y] == 1 )  //rule 1
+		         eval("setAttr "+$name+".visibility 1");  //show
+		     else
+	             eval("setAttr "+$name+".visibility 0");  //hide
+		    }
+	refresh; //show the pattern as it evolves
+
+} // next generation
