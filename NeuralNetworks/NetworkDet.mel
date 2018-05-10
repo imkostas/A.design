@@ -1,0 +1,39 @@
+$knt=0;
+$xmax = 40;
+$ymax = 40;
+$off = 1.;
+$neig = 1;
+for ($x=0 ; $x<$xmax ; $x++) {
+	for ($y=0 ; $y<$ymax ; $y++) {
+    polyCube -name ("MySphere" + $x+"x"+$y);
+    move ($x*5) ($y*5) 0;
+
+    if($y<10)continue;
+      float $off = (int)($y-10)/10.;
+      $xoff =  rand(-$off,$off);
+      $yoff =  rand(-$off,$off);
+      $zoff =  rand(-$off,$off);
+      move -r $xoff $yoff $zoff ;
+    //move     ($x*5+rand(-$off,$off))  ($y*5+rand(-$off,$off))   (rand(-$off,$off));
+    }
+}
+
+
+$knt=0;
+circle -r .1 -n MyCircle;
+for ($x=$neig ; $x<$xmax-$neig ; $x++) {
+	for ($y=$neig ; $y<$ymax-$neig ; $y++) {
+	   	$pos0 = eval("getAttr MySphere"+$x+"x"+$y+".translate");
+	   	for($i=-$neig; $i<=$neig; $i++)
+	   	   for($j=-$neig; $j<=$neig; $j++){
+	   			$pos1 = eval("getAttr MySphere"+($x+$i)+"x"+($y+$j)+".translate");
+	   			$linename = "MyLine" + $knt;
+				curve -d 1 -n $linename -p $pos0[0] $pos0[1] $pos0[2] -p $pos1[0] $pos1[1] $pos1[2];
+				//$nodename = "MyNode" + $knt;
+				//extrude  -rn false -po 0 -et 2 -ucp 1 -fpt 1 -upn 1 -rotation 0 -scale 1 -rsp 1 -name $nodename MyCircle $linename ;
+                $knt++;
+				}
+	}
+}
+delete MyCircle;
+
