@@ -1,0 +1,73 @@
+//****************************************
+//
+// Title      : Mullions
+// Author     : Kostas Terzidis
+// Description: Given a set of lines (i.e. curves, or segments)
+//              it extrudes a circle and creates mullions
+//
+//
+//****************************************
+// textToShelf:
+// Copy this code and paste it in the script editor.
+// Select from the menu File->Save Selected to Shelf
+// Give it a name (i.e. mull)
+// 
+// To use the command:
+// Select the curves you want to extrude (i.e. segments, or uv isoparms)
+// Click on the mull icon
+// Select the radius 
+//
+//********************************************
+// Makes a window for input.
+// It contains: text input, choice check, slider, and a float number input
+//********************************************
+global proc testwindow( ){
+
+	if((`window -exists testwindowname`) == true )  //if the window
+	    deleteUI testwindowname;
+	window -title "Mullions" -wh 300 200 testwindowname;
+	//columnLayout -adjustableColumn true; 
+	columnLayout -columnAttach "both" 5 -rowSpacing 10 -columnWidth 250;
+
+	floatFieldGrp -label "radius" radius;
+	//Button to call procedures.
+	button -label "Run" -command "getInput; deleteUI testwindowname";
+	button -label "Cancel" -command ("deleteUI testwindowname");
+	//End of the column.
+	setParent..;                                          
+	showWindow testwindowname;                               
+}
+
+
+testwindow;
+
+//********************************************
+// This part extracts the inputted variables to be used further
+//********************************************
+global proc getInput(){
+
+	float $radius = ` floatFieldGrp -q -value1 radius `;
+	print $radius;
+	
+	//mullions($radius);
+	
+	string $MyLine[];
+	
+	ls -sl;
+	
+	for($k=0; $k<73; $k++){
+	     $MyLine = `filterExpand -sm $k`;
+	     if(size($MyLine)>0)break;
+	}
+	
+	//$radius = 0.03;////////
+	
+	for($j=0; $j<size($MyLine); $j++){
+		$lname = $MyLine[($j)];
+	        circle -r $radius -n MyCircle;
+	        $newname = "MyPipe" + $j;
+		extrude  -rn false -po 0 -et 2 -ucp 1 -fpt 1 -upn 1 -rotation 0 -scale 1 -rsp 1 -name $newname MyCircle $lname ;
+                delete MyCircle;
+	        }
+        
+}
